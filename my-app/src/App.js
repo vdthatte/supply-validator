@@ -116,6 +116,8 @@ class App extends Component {
 
   download(){
     var csv = []
+    var head_line = ["image_url","description", "store_id", "store_name", "item_id", "item_name", "brand", "size"]
+    csv.push(head_line)
     for(var i=0; i<this.state.items.length; i++){
       if(this.state.items[i]["approved"]){
         var line = [this.state.items[i]["image_url"], this.state.items[i]["description"], this.state.items[i]["store_id"], this.state.items[i]["store_name"], this.state.items[i]["item_id"], this.state.items[i]["item_name"], this.state.items[i]["brand"], this.state.items[i]["size"]]
