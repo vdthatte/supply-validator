@@ -106,8 +106,6 @@ class App extends Component {
       new_items[this.state.index]["size"] = this.state.item_size
       new_items[this.state.index]["approved"] = true
 
-      var line = ""
-
       this.setState({
         items: new_items,
         approvedItems: this.state.approvedItems + 1
@@ -117,8 +115,15 @@ class App extends Component {
   }
 
   download(){
-
+    var csv = []
+    for(var i=0; i<this.state.items.length; i++){
+      if(this.state.items[i]["approved"]){
+        var line = [this.state.items[i]["image_url"], this.state.items[i]["description"], this.state.items[i]["store_id"], this.state.items[i]["store_name"], this.state.items[i]["item_id"], this.state.items[i]["item_name"], this.state.items[i]["brand"], this.state.items[i]["size"]]
+        csv.push(line)
+      }
+    }
     this.setState({
+      csvData: csv,
       isDownloadTapped: true
     })
   }
