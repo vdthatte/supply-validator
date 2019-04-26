@@ -16,7 +16,9 @@ class App extends Component {
       approved: [],
       isDataPresent : false,
       isLoading: false,
+      isDownloadTapped: false,
       index: 0,
+      approvedItems: 0,
 
 
       image_url: "",
@@ -27,15 +29,24 @@ class App extends Component {
       item_name: "",
       item_brand: "",
       item_size: "",
+
+      csvData : [
+        ["firstname", "lastname", "email"],
+        ["Ahmed", "Tomi", "ah@smthing.co.com"],
+        ["Raed", "Labes", "rl@smthing.co.com"],
+        ["Yezzi", "Min l3b", "ymin@cocococo.com"]
+      ]
     
 
     }
 
+    this.buttonClick = this.buttonClick.bind(this);
     this.handleClick = this.handleClick.bind(this);
-    this.loadItems = this.loadItems.bind(this);
     this.handleFiles = this.handleFiles.bind(this);
     this.nextTapped = this.nextTapped.bind(this);
     this.prevTapped = this.prevTapped.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
+    this.download = this.download.bind(this);
 
   }
 
@@ -47,7 +58,9 @@ class App extends Component {
         var data = reader.result;
         var json = JSON.parse(data);
         for(var i=0; i<json.length; i++){
-          items.push(json[i]);
+          var new_json = json[i];
+          new_json["approved"] = false
+          items.push(new_json);
         }
 
         that.setState({
@@ -62,6 +75,7 @@ class App extends Component {
           item_name: items[0].listing_name,
           item_brand: items[0].brand,
           item_size: items[0].size,
+
         })
 
     });
@@ -69,6 +83,10 @@ class App extends Component {
   }
 
   handleClick(e){
+
+  }
+
+  buttonClick(e){
     if(e.target.name == "remove"){
       var new_items = this.state.items
       new_items.splice(e.target.value, 1) 
@@ -76,16 +94,33 @@ class App extends Component {
         items: new_items
       })
     } else if(e.target.name == "approve"){
-      var approvedItems = this.state.approved
-      approvedItems.push(this.state.items[e.target.value]);
+
+      var new_items = this.state.items
+      new_items[this.state.index]["image_url"] = this.state.image_url
+      new_items[this.state.index]["description"] = this.state.description
+      new_items[this.state.index]["store_id"] = this.state.store_id
+      new_items[this.state.index]["store_name"] = this.state.store_name
+      new_items[this.state.index]["item_id"] = this.state.item_id
+      new_items[this.state.index]["item_name"] = this.state.item_name
+      new_items[this.state.index]["brand"] = this.state.item_brand
+      new_items[this.state.index]["size"] = this.state.item_size
+      new_items[this.state.index]["approved"] = true
+
+      var line = ""
+
       this.setState({
-        approved: approvedItems,
+        items: new_items,
+        approvedItems: this.state.approvedItems + 1
       })
+
     }
   }
 
-  loadItems(){
-    
+  download(){
+
+    this.setState({
+      isDownloadTapped: true
+    })
   }
 
   prevTapped(){
@@ -122,6 +157,12 @@ class App extends Component {
     }
   }
 
+  handleInputChange(e){
+    let change = {}
+    change[e.target.name] = e.target.value
+    this.setState(change)
+  }
+
   render() {
     return (
       <div className="App">
@@ -137,35 +178,34 @@ class App extends Component {
                 <div className="item">
                 <div className="row">
                   <div className="col">
-                    Image: <input className="item_image_url" value={this.state.items[this.state.index].image} /> 
-                    <img className="item_image" src={this.state.items[this.state.index].image} width="250" height="250"/> <br/>
+                    Image: <input className="item_image_url" value={this.state.image_url} name="image_url" onChange={this.handleInputChange}/> 
+                    <img className="item_image" src={this.state.image_url} name="image_url" width="250" height="250" onChange={this.handleInputChange}/> <br/>
                     Description:
-                    <p> <textarea className="item_description" value={this.state.items[this.state.index].description} rows="5"/></p>
+                    <p> <textarea className="item_description" name="description" value={this.state.description} rows="5" onChange={this.handleInputChange}/></p>
                   </div>
                   <div className="col">
                     <br/>
-                    <p>Store Id: <input className="item_store_id" value={this.state.items[this.state.index].store_id} /></p> 
-                    <p>Store Name: <input className="item_store_name" value={this.state.items[this.state.index].store_name} /></p> 
-                    <p>ID: <input className="item_id" value={this.state.items[this.state.index].item_id} /></p> 
-                    <p>Name: <input className="item_name" value={this.state.items[this.state.index].listing_name} /> </p>
-                    <p>Brand: <input className="item_brand" value={this.state.items[this.state.index].brand} /> </p>
-                    <p>Size: <input className="item_size" value={this.state.items[this.state.index].size} /></p> 
-                    <p>SKU: <input className="item_sku" value={this.state.items[this.state.index].sku} /> </p>
-                    
+                    <p>Store Id: <input className="item_store_id" name="store_id" value={this.state.store_id} onChange={this.handleInputChange}/></p> 
+                    <p>Store Name: <input className="item_store_name" name="store_name" value={this.state.store_name} onChange={this.handleInputChange}/></p> 
+                    <p>ID: <input className="item_id" name="item_id" value={this.state.item_id} onChange={this.handleInputChange}/></p> 
+                    <p>Name: <input className="item_name" name="item_name" value={this.state.item_name} onChange={this.handleInputChange}/> </p>
+                    <p>Brand: <input className="item_brand" name="item_brand" value={this.state.item_brand} onChange={this.handleInputChange}/> </p>
+                    <p>Size: <input className="item_size" name="item_size" value={this.state.item_size} onChange={this.handleInputChange}/></p> 
                   </div>
                 </div>
-                <div className="downloadSection"><button>Download</button></div>
+
+                <div className="downloadSection"><button onClick={this.download}>Download</button></div>
                 </div>
                 {/* <button key={this.state.index} value={this.state.index} name="remove" onClick={this.handleClick}>Remove</button><button value={this.state.index} key={this.state.index}  onClick={this.handleClick}>Approve</button> */}
-                <button className="approveButton" onClick={this.handleClick} name="remove"><img className="approveButtonImg" src={process.env.PUBLIC_URL + '/close.png'} /></button><button className="nextbutton" onClick={this.prevTapped}><img width="10" height="20" src={process.env.PUBLIC_URL + '/left.png'} /></button>{this.state.index} of {this.state.items.length} items<button className="nextbutton" onClick={this.nextTapped}><img width="10" height="20" src={process.env.PUBLIC_URL + '/right.png'} /></button><button className="approveButton" onClick={this.handleClick} name="approve"><img className="approveButtonImg" src={process.env.PUBLIC_URL + '/check.png'} /></button>
+                <button className="approveButton" onClick={this.buttonClick} value="remove" name="remove">Delete</button>
+                <button className="nextbutton" onClick={this.prevTapped}><img width="10" height="20" src={process.env.PUBLIC_URL + '/left.png'} /></button>{this.state.index} of {this.state.items.length} items
+                <button className="nextbutton" onClick={this.nextTapped}><img width="10" height="20" src={process.env.PUBLIC_URL + '/right.png'} /></button>
+                <button className="approveButton" onClick={this.buttonClick} value="approve" name="approve">Approve</button>
                 <br/>
-                
-  
-                  
-                  
-                
+                {
+                  (this.state.isDownloadTapped)?(<CSVDownload data={this.state.csvData} target="_blank" />):(null)
+                }
             </div>
-
 
           )
         }
